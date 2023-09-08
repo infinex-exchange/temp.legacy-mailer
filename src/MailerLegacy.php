@@ -59,7 +59,8 @@ class MailerLegacy {
                     $q -> execute($task);
                 }
                 
-                $this -> log -> info("Processed $rowsCount mails");
+                if($rowsCount != 0)
+                    $this -> log -> info("Processed $rowsCount mails");
             } while($rowsCount == 50);
         }
         catch(\Exception $e) {
