@@ -1,8 +1,6 @@
 <?php
 
-require __DIR__.'/Sender.php';
-require __DIR__.'/MailQueue.php';
-require __DIR__.'/MailStorage.php';
+require __DIR__.'/MailerLegacy.php';
 
 class App extends Infinex\App\Daemon {
     private $pdo;
