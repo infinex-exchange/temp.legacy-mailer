@@ -17,7 +17,7 @@ class MailerLegacy {
     
     public function start() {
         $th = $this;
-        $this -> loop -> addPeriodicTimer(5, function() {
+        $this -> loop -> addPeriodicTimer(5, function() use($th) {
             $th -> sendMails();
         });
     }
