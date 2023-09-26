@@ -1,10 +1,14 @@
 <?php
 
-class MailerLegacy {
+use React\Promise;
+
+class LegacyMailer {
     private $loop;
     private $log;
     private $amqp;
     private $pdo;
+    
+    private $timer;
     
     function __construct($loop, $log, $amqp, $pdo) {
         $this -> loop = $loop;
@@ -17,20 +21,33 @@ class MailerLegacy {
     
     public function start() {
         $th = $this;
-        $this -> loop -> addPeriodicTimer(5, function() use($th) {
-            $th -> sendMails();
-        });
+        
+        $this -> timer = $this -> loop -> addPeriodicTimer(
+            5,
+            function() use($th) {
+                $th -> sendMails();
+            }
+        );
+        
+        $this -> log -> info('Started legacy mailer');
+        
+        return Promise\resolve(null);
     }
     
-    public function sendMails() {
+    public function stop() {
+        $this -> loop -> cancelTimer($this -> timer);
+        
+        $this -> log -> info('Started legacy mailer');
+        
+        return Promise\resolve(null);
+    }
+    
+    private function sendMails() {
         try {
             do {
-                $sql = 'SELECT mails.*,
-                            users.email
-                        FROM mails,
-                            users
-                        WHERE mails.sent = FALSE
-                        AND mails.uid = users.uid
+                $sql = 'SELECT *,
+                        FROM mails
+                        WHERE sent = FALSE
                         LIMIT 50';
      
                 $rows = $this -> pdo -> query($sql);
@@ -42,7 +59,7 @@ class MailerLegacy {
                     $this -> amqp -> pub(
                         'mail',
                         [
-                            'email' => $row['email'],
+                            'uid' => $row['uid'],
                             'template' => $row['template'],
                             'context' => json_decode($row['data'], true)
                         ]
@@ -64,7 +81,7 @@ class MailerLegacy {
             } while($rowsCount == 50);
         }
         catch(\Exception $e) {
-            $this -> log -> error('Exception during processing mails: '.$e -> getMessage());
+            $this -> log -> error('Exception during processing mails: '.((string) $e));
         }
     }
 }
