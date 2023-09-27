@@ -61,7 +61,8 @@ class LegacyMailer {
                         [
                             'uid' => $row['uid'],
                             'template' => $row['template'],
-                            'context' => json_decode($row['data'], true)
+                            'context' => json_decode($row['data'], true),
+                            'email' => $row['email']
                         ]
                     );
                 
