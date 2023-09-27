@@ -45,7 +45,7 @@ class LegacyMailer {
     private function sendMails() {
         try {
             do {
-                $sql = 'SELECT *,
+                $sql = 'SELECT *
                         FROM mails
                         WHERE sent = FALSE
                         LIMIT 50';
